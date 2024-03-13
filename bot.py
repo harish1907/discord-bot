@@ -20,35 +20,14 @@ def run_discord_bot():
     bot = commands.Bot(command_prefix="!", case_insensitive=True, intents=intents)
     bot.remove_command("help")
 
-    @bot.command()
-    async def select_account(ctx):
-        options = ["Prop account -1", "Prop account -2"]  # List of options
-        prompt = "\n".join(f"{index + 1}. {option}" for index, option in enumerate(options))
-
-        # Send prompt to the user
-        await responses.handle_command(ctx, "Please select an option by typing its number:\n", prompt, discord.Color.green())
-
-        def check(message):
-            return message.author == ctx.author and message.channel == ctx.channel and message.content.isdigit() and 1 <= int(message.content) <= len(options)
-
-        try:
-            message = await bot.wait_for('message', check=check, timeout=30)
-            selected_option = options[int(message.content) - 1]
-
-            role_id = None
-            for role in ctx.author.roles:
-                role_id = role.id
-                break  
-
-            await responses.handle_command(ctx, "You selected:", f"{selected_option} and your role ID is: {role_id}", discord.Color.green())
-        except Exception as e:
-            await ctx.send("You took too long to respond.")
-
-
-
     @bot.event
     async def on_ready():
         print(f'{bot.user} is now running..')
+
+
+    @bot.command()
+    async def select_account(ctx):
+        await ctx.send("Please choose an account", view=discord.ui.View().add_item(responses.selectAccount(ctx)))
 
     @bot.command()
     async def hello(ctx):
